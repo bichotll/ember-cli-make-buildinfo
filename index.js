@@ -1,47 +1,124 @@
 /* jshint node: true */
-'use strict';
 
-// modified in purpose,
-// but based on https://gist.github.com/novaugust/9d0133588fc29844afaf
-// and https://github.com/heyjinkim/ember-cli-index-fragment/blob/master/index.js
+// https://github.com/walter/ember-cli-make-concoction
+// https://gist.github.com/novaugust/9d0133588fc29844afaf
+// https://github.com/heyjinkim/ember-cli-index-fragment/blob/master/index.js
+
 var path = require('path');
 var fs = require('fs');
-var glob = require('glob');
-var prefixReplacement = 'PREFIX_PATTERN';
+var exec = require('child_process').exec;
+//var util = require('util');
 
-var util = require('util');
+/*
+ *[Motocal Client]
+ *configuration=test
+ *built_by=davidmcnamara
+ *build_date=Thu Feb 12 2015 17:05:17 GMT+0000 (GMT)
+ *build_dir=/Users/davidmcnamara/workspace/client-hg
+ *build_host=dmcnamara-imac.local
+ *branch=default
+ *revision=hg:client:185:365c0862bdc5
+ *tag=2015-w07-rc1
+ *
+ */
 
-function concoctFrom(input, toBeReplaced, replacement) {
-  // escape necessary characters for proper eval later
-  var concoction = input; // = input.replace(/\\/g, '\\').replace(/"/g, '\"');
+var appEnv,
+    revInfo = {};
 
-  // replace modulePrefix with placeholder pattern
-  var re = new RegExp(toBeReplaced, 'g');
-  concoction = concoction.replace(re, replacement);
+var getRevInfo = function(project, cb) {
 
-  return concoction;
+    if (fs.existsSync(path.join(project.root, '.hg'))) {
+        var repo = new (require('hg')).HGRepo(project.root);
+
+        repo.summary(function(err, output) {
+            if (err) {
+                throw err;
+            }
+
+            output.forEach(function(line) {
+                var bits = line.body.trim().split(': ');
+
+                if (bits.length === 2) {
+                    revInfo[bits[0]] = bits[1];
+                }
+            });
+
+            revInfo.version = 'hg:' + revInfo.parent;
+
+            exec('hg tags | grep -v tip | head -1 | cut -d\' \' -f1',
+                function (error, stdout/*, stderr*/) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        revInfo.tag = stdout.trim();
+                    }
+                    cb();
+                });
+
+        });
+    } else if (fs.existsSync(path.join(project.root, '.git'))) {
+        var git = require('git-rev');
+
+        git.short(function(str) {
+            revInfo.version = 'git:' + str;
+
+            git.branch(function(branch) {
+                revInfo.branch = branch;
+
+                git.tag(function(tag) {
+                    revInfo.tag = tag;
+                    cb();
+                });
+            });
+        });
+    } else {
+        throw 'No hg or git revision found';
+    }
+};
+
+function getBuildInfo(project, cb) {
+    var buildInfo = '';
+    
+    fs.readFile(path.join(project.root, 'package.json'), {encoding: 'utf8'}, function(err, data) {
+        
+        if (err) { 
+            throw err;
+        }
+
+        getRevInfo(project, function() {
+
+            var pkg = JSON.parse(data);
+
+            buildInfo += '[' + pkg.name + ']\n' +
+                'configuration=' + appEnv + '\n' +
+                'built_by=' + process.env.USER + '\n' +
+                'build_date=' + (new Date()) + '\n' +
+                'build_dir=' + (project.root) + '\n' +
+                'build_host=' + require('os').hostname() + '\n' +
+                'branch=' + (revInfo.branch?revInfo.branch:'Unknown') + '\n' +
+                'revision=' + (revInfo.version?revInfo.version:'Unknown') + '\n' +
+                'tag=' + (revInfo.tag?revInfo.tag:'') + '\n';
+
+            cb(buildInfo);
+
+        });
+
+    });
 }
 
 module.exports = {
-  name: 'ember-cli-make-concoction',
-  postBuild: function(result) {
-    // only do this step if production build
-    if (process.env.EMBER_ENV === 'production') {
-      // based on convention is that root dir name is modulePrefix
-      // this will break if that is not case
-      var modulePrefix = path.basename(this.project.root);
-      var buildDirPath = result.directory;
-      var assetsDirPath = path.join(buildDirPath, '/assets/');
 
-      // assumes one matching file
-      var inputFile = glob.sync(path.join(assetsDirPath, modulePrefix + '-*.js'))[0];
-      var appCode = fs.readFileSync(inputFile, {encoding: 'utf8'});
+    name: 'ember-cli-make-buildinfo',
 
-      var outputFilePath = path.join(this.project.root, modulePrefix + '-concoction.txt');
-      var concoction = concoctFrom(appCode, modulePrefix, prefixReplacement);
-      fs.writeFileSync(outputFilePath, concoction);
+    config: function(env/*, appConfig*/) {
+        appEnv = env;
+    },
 
-      console.log('\nSuccessfully made ' + modulePrefix + ' concoction as ' + outputFilePath);
+    postBuild: function(/*result*/) {
+        var root = this.project.root;
+
+        getBuildInfo(this.project, function(buildInfo) {
+            fs.writeFileSync(path.join(root, 'dist', 'buildinfo.txt'), buildInfo,  'utf8');
+        });
     }
-  }
 };

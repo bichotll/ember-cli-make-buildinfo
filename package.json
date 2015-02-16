@@ -1,7 +1,7 @@
 {
-  "name": "ember-cli-make-concoction",
-  "version": "0.0.3",
-  "description": "Adds postBuild step for production that will output a [your-app-modulePrefix]-concoction.txt file.",
+  "name": "ember-cli-make-buildinfo",
+  "version": "0.0.1",
+  "description": "Adds buildinfo.txt to builds of your app.",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/walter/ember-cli-make-concoction.git"
+    "url": "git://github.com/mackers/ember-cli-make-buildinfo.git"
   },
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "Walter McGinnis <web@mars-hq.com>",
+  "author": "David McNamara <david@rocksteady.com>",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.0.0",
@@ -42,6 +42,8 @@
     "configPath": "tests/dummy/config"
   },
   "dependencies": {
-    "glob": "^4.3.2"
+    "glob": "^4.3.2",
+    "git-rev": "~0.2.1",
+    "hg": "~0.1.1"
   }
 }
