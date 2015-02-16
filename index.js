@@ -10,7 +10,7 @@ var exec = require('child_process').exec;
 //var util = require('util');
 
 /*
- *[Motocal Client]
+ *[App Name]
  *configuration=test
  *built_by=davidmcnamara
  *build_date=Thu Feb 12 2015 17:05:17 GMT+0000 (GMT)
@@ -19,7 +19,6 @@ var exec = require('child_process').exec;
  *branch=default
  *revision=hg:client:185:365c0862bdc5
  *tag=2015-w07-rc1
- *
  */
 
 var appEnv,
