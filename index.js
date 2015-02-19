@@ -37,7 +37,7 @@ var getRevInfo = function(project, cb) {
                     revInfo.branch = bits[1].trim();
                     revInfo.revision = 'hg:' + bits[2].trim();
 
-                    console.log(JSON.stringify(revInfo));
+                    //console.log(JSON.stringify(revInfo));
                 }
                 cb();
             });
