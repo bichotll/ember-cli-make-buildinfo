@@ -6,8 +6,8 @@
 
 var path = require('path');
 var fs = require('fs');
-var exec = require('child_process').exec;
-//var util = require('util');
+var execSync = require('exec-sync');
+var git = require('git-rev');
 
 /*
  *[App Name]
@@ -27,23 +27,17 @@ var appEnv,
 var getRevInfo = function(project, cb) {
 
     if (fs.existsSync(path.join(project.root, '.hg')) || fs.existsSync(path.join(project.root, '..', '.hg'))) {
-        exec('hg tags | grep -v tip | head -1 | cut -d\' \' -f1 && hg branch && hg log -l1 | grep changeset | head -1 | cut -d\' \' -f4',
-            function (error, stdout/*, stderr*/) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    var bits = stdout.split('\n');
-                    revInfo.tag = bits[0].trim();
-                    revInfo.branch = bits[1].trim();
-                    revInfo.revision = 'hg:' + bits[2].trim();
+        var out = execSync('hg tags | grep -v tip | head -1 | cut -d\' \' -f1');
+        revInfo.tag = out.trim();
+        
+        out = execSync('hg branch');
+        revInfo.branch = out.trim();
 
-                    //console.log(JSON.stringify(revInfo));
-                }
-                cb();
-            });
+        out = execSync('hg log -l1 | grep changeset | head -1 | cut -d\' \' -f4');
+        revInfo.revision = 'hg:' + out.trim();
+
+        cb();
     } else if (fs.existsSync(path.join(project.root, '.git'))) {
-        var git = require('git-rev');
-
         git.short(function(str) {
             revInfo.revision = 'git:' + str;
 

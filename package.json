@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "glob": "^4.3.2",
-    "git-rev": "~0.2.1"
+    "git-rev": "~0.2.1",
+    "exec-sync": "~0.1.6"
   }
 }
