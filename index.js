@@ -6,7 +6,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var execSync = require('exec-sync');
+var execSync = require('child_process').execSync; // node 0.12
 var git = require('git-rev');
 
 /*
@@ -27,13 +27,13 @@ var appEnv,
 var getRevInfo = function(project, cb) {
 
     if (fs.existsSync(path.join(project.root, '.hg')) || fs.existsSync(path.join(project.root, '..', '.hg'))) {
-        var out = execSync('hg tags | grep -v tip | head -1 | cut -d\' \' -f1');
+        var out = execSync('hg tags | grep -v tip | head -1 | cut -d\' \' -f1', {encoding: 'utf8'});
         revInfo.tag = out.trim();
         
-        out = execSync('hg branch');
+        out = execSync('hg branch', {encoding: 'utf8'});
         revInfo.branch = out.trim();
 
-        out = execSync('hg log -l1 | grep changeset | head -1 | cut -d\' \' -f4');
+        out = execSync('hg log -l1 | grep changeset | head -1 | cut -d\' \' -f4', {encoding: 'utf8'});
         revInfo.revision = 'hg:' + out.trim();
 
         cb();
