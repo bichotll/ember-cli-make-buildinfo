@@ -8,6 +8,7 @@ var path = require('path');
 var fs = require('fs');
 var execSync = require('child_process').execSync; // node 0.12
 var git = require('git-rev');
+var RSVP = require('rsvp');
 
 /*
  *[App Name]
@@ -57,7 +58,7 @@ var getRevInfo = function(project, cb) {
 
 function getBuildInfo(project, cb) {
     var buildInfo = '';
-    
+
     fs.readFile(path.join(project.root, 'package.json'), {encoding: 'utf8'}, function(err, data) {
         
         if (err) { 
@@ -93,11 +94,14 @@ module.exports = {
         appEnv = env;
     },
 
-    postBuild: function(/*result*/) {
-        var root = this.project.root;
+    postBuild: function(result) {
+        var project = this.project;
 
-        getBuildInfo(this.project, function(buildInfo) {
-            fs.writeFileSync(path.join(root, 'dist', 'buildinfo.txt'), buildInfo,  'utf8');
+        return new RSVP.Promise(function (resolve) {
+            getBuildInfo(project, function(buildInfo) {
+                fs.writeFileSync(path.join(result.directory, 'buildinfo.txt'), buildInfo,  'utf8');
+                resolve();
+            });
         });
     }
 };

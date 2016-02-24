@@ -18,7 +18,10 @@
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "David McNamara <david@rocksteady.com>",
+  "author": {
+    "name": "David McNamara",
+    "email": "david@rocksteady.com"
+  },
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.0.0",
@@ -42,7 +45,19 @@
     "configPath": "tests/dummy/config"
   },
   "dependencies": {
+    "git-rev": "~0.2.1",
     "glob": "^4.3.2",
-    "git-rev": "~0.2.1"
-  }
+    "rsvp": "^3.2.1"
+  },
+  "gitHead": "b0d367ddf015e29e0b83146490b6aa5933524ee9",
+  "readme": "# Ember-cli-make-buildinfo\n\nThis very simple add-on that will create a buildinfo.txt in your dist dir that\nlooks similar to the following:\n\n<pre>\n[App Name]\nconfiguration=test\nbuilt_by=davidmcnamara\nbuild_date=Thu Feb 12 2015 17:05:17 GMT+0000 (GMT)\nbuild_dir=/Users/davidmcnamara/workspace/client-hg\nbuild_host=dmcnamara-imac.local\nbranch=default\nrevision=hg:185:365c0862bdc5\ntag=2015-w07-rc1\n</pre>\n\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/mackers/ember-cli-make-buildinfo/issues"
+  },
+  "homepage": "https://github.com/mackers/ember-cli-make-buildinfo#readme",
+  "_id": "ember-cli-make-buildinfo@0.0.1",
+  "_shasum": "488b0b48d0cbddeaf3f648fbd6d75ae4e284f508",
+  "_from": "git://github.com/mackers/ember-cli-make-buildinfo.git",
+  "_resolved": "git://github.com/mackers/ember-cli-make-buildinfo.git#b0d367ddf015e29e0b83146490b6aa5933524ee9"
 }
