@@ -28,14 +28,14 @@ var appEnv,
 var getRevInfo = function(project, cb) {
 
     if (fs.existsSync(path.join(project.root, '.hg')) || fs.existsSync(path.join(project.root, '..', '.hg'))) {
-        var out = execSync('hg tags | grep -v tip | head -1 | cut -d\' \' -f1', {encoding: 'utf8'});
+        var out = execSync('git describe --tags', {encoding: 'utf8'});
         revInfo.tag = out.trim();
         
-        out = execSync('hg branch', {encoding: 'utf8'});
+        out = execSync("git branch | sed -n '/\* /s///p'", {encoding: 'utf8'});
         revInfo.branch = out.trim();
 
-        out = execSync('hg log -l1 | grep changeset | head -1 | cut -d\' \' -f4', {encoding: 'utf8'});
-        revInfo.revision = 'hg:' + out.trim();
+        out = execSync('git describe', {encoding: 'utf8'});
+        revInfo.revision = 'git:' + out.trim();
 
         cb();
     } else if (fs.existsSync(path.join(project.root, '.git'))) {
